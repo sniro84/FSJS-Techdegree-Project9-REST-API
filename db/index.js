@@ -3,7 +3,10 @@ const Sequelize = require('sequelize');
 // create a Sequelize instance
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: 'fsjstd-restapi.db'
+  storage: 'fsjstd-restapi.db',
+  define: {
+    timestamps: false 
+  }
 });
 
 // create a db object which contains sequelize instance and models (allow access from the app)

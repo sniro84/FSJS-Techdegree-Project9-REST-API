@@ -21,6 +21,7 @@ const { Course } = db.models;
 
         // Instance of the User class represents a database row
         const user = await User.create({
+          id: 807,
           firstName: 'Snir',
           lastName: 'Holland',
           emailAddress: 'snirofakemail@yahoo.com',
@@ -28,8 +29,9 @@ const { Course } = db.models;
         });
         console.log(user.toJSON());
 
+        // Instance of the Course class represents a database row
         const course = await Course.create({
-          userId: 1,
+          userId: user.id,
           title: 'Linear Algebra',
           description: 'Abstract mathematics: Complex numbers, Matrices, Vector spaces etc..',
           estimatedTime: '4 months',
@@ -38,6 +40,15 @@ const { Course } = db.models;
         console.log(course.toJSON());
   }
   catch (error) {
+    if (error.name === 'SequelizeValidationError') {
+      const errors = error.errors.map( (err) => err.message);
+      console.error('Validation errors: ', errors);
+    }
+    else {
+      throw error;
+    }
+
+
     console.error('Error connecting to the database: ', error);
   }
 })();
