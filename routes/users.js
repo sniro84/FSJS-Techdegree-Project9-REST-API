@@ -22,7 +22,7 @@ router.post('/' , (req,res) => {
                 console.error('Validation errors: ', errors);
             else
                 throw error;
-            res.status(400).json(errors).end();    
+            res.status(400).json({Errors: errors}).end();    
         }    
 )});
 
