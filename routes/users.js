@@ -15,8 +15,15 @@ router.post('/' , (req,res) => {
 
     // create the new user
     User.create(user)
-        .then( res.location('/').status(201).end() ) 
-        .catch( (err) => console.log(err))
-});
+        .then( () => res.location('/').status(201).end() ) 
+        .catch( (error) => {
+            const errors = error.errors.map( (err) => err.message);
+            if (error.name === 'SequelizeValidationError')    
+                console.error('Validation errors: ', errors);
+            else
+                throw error;
+            res.status(400).json(errors).end();    
+        }    
+)});
 
 module.exports = router;

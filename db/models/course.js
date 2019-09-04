@@ -64,5 +64,6 @@ module.exports = (sequelize) => {
         });
     };
 
+    module.exports = Course;
     return Course;
 };
