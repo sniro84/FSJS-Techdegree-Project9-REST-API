@@ -4,6 +4,9 @@
 const express = require('express');
 const morgan = require('morgan');
 const db = require('./db');
+const bodyParser = require('body-parser');
+const users = require('./routes/users');
+// const courses = require('./routes/courses');
 
 /************* NEW ADDED CODE ***********/
 // import User and Course models
@@ -21,13 +24,12 @@ const { Course } = db.models;
 
         // Instance of the User class represents a database row
         const user = await User.create({
-          id: 807,
           firstName: 'Snir',
           lastName: 'Holland',
           emailAddress: 'snirofakemail@yahoo.com',
           password: 'fakepass93751'
         });
-        console.log(user.toJSON());
+        // console.log(user.toJSON());
 
         // Instance of the Course class represents a database row
         const course = await Course.create({
@@ -37,7 +39,7 @@ const { Course } = db.models;
           estimatedTime: '4 months',
           materialsNeeded: 'A good mood..'
         });
-        console.log(course.toJSON());
+        // console.log(course.toJSON());
   }
   catch (error) {
     if (error.name === 'SequelizeValidationError') {
@@ -54,7 +56,6 @@ const { Course } = db.models;
 })();
 /******************************************************/ 
 
-
 // variable to enable global error logging
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
 
@@ -64,7 +65,16 @@ const app = express();
 // setup morgan which gives us http request logging
 app.use(morgan('dev'));
 
-// TODO setup your api routes here
+// Body-parser
+app.use(bodyParser.urlencoded({extended: false}));
+// parse application/json
+app.use(bodyParser.json());
+
+
+
+// setup api routes
+app.use('/api/users' , users);
+// app.use('/api/courses' , courses);
 
 // setup a friendly greeting for the root route
 app.get('/', (req, res) => {
