@@ -14,7 +14,7 @@ router.post('/' , (req,res) => {
     console.log(user);
 
     // create the new user
-    User.create(req.body)
+    User.create(user)
         .then( res.location('/').status(201).end() ) 
         .catch( (err) => console.log(err))
 });
