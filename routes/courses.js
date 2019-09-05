@@ -45,8 +45,7 @@ router.post('/' , authenticateUser, (req,res) => {
                 res.status(400).json({Errors: errors});
             }    
             else
-                res.status(500).json({message: error.message});
-                
+                res.status(500).json({message: error.message});  
         })
 });
 
