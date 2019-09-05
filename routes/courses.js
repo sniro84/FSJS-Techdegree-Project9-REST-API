@@ -1,3 +1,12 @@
+/******************************************
+Treehouse FSJS Techdegree:
+Project 9 - REST API
+Name: Snir Holland
+Date: 05/09/2019
+
+>>> Routes: courses <<<
+******************************************/
+
 'use strict';
 
 const express = require('express');

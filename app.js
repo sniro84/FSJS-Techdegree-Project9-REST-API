@@ -1,3 +1,12 @@
+/******************************************
+Treehouse FSJS Techdegree:
+Project 9 - REST API
+Name: Snir Holland
+Date: 05/09/2019
+
+>>> main app <<<
+******************************************/
+
 'use strict';
 
 // load modules
@@ -7,16 +16,14 @@ const db = require('./db');
 const bodyParser = require('body-parser');
 const users = require('./routes/users');
 const courses = require('./routes/courses');
+const bcryptjs = require('bcryptjs');
 
-/************* NEW ADDED CODE ***********/
 // import User and Course models
 const { User } = db.models;
 const { Course } = db.models;
 
-const bcryptjs = require('bcryptjs');
-
+// connect to database
 (async () => {
-  // sync users table
   await db.sequelize.sync({ force: true });
 
   try {

@@ -1,3 +1,12 @@
+/******************************************
+Treehouse FSJS Techdegree:
+Project 9 - REST API
+Name: Snir Holland
+Date: 05/09/2019
+
+>>> user authentication <<<
+******************************************/
+
 // basic-auth module
 const auth = require('basic-auth');
 
