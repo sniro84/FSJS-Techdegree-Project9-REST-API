@@ -96,11 +96,12 @@ router.post('/' , (req,res) => {
         .then( () => res.location('/').status(201).end() ) 
         .catch( (error) => {
             const errors = error.errors.map( (err) => err.message);
-            if (error.name === 'SequelizeValidationError')    
+            if (error.name === 'SequelizeValidationError') {
+                res.status(400).json({Errors: errors});
                 console.error('Validation errors: ', errors);
+            }    
             else
-                throw error;
-            res.status(400).json({Errors: errors});    
+                res.status(500).json({message: error.message});        
         }    
 )});
 

@@ -25,11 +25,10 @@ router.get('/:id' , async (req,res) => {
     }
     catch(error) {
         res.status(500).json({message: error.message});
-
     }       
 });
 
-// a router that creates a new course
+// a route that creates a new course
 router.post('/', (req,res) => {
 
     const course = req.body;
@@ -38,12 +37,60 @@ router.post('/', (req,res) => {
         .then( () => res.location('/').status(201).end() ) 
         .catch( (error) => {
             const errors = error.errors.map( (err) => err.message);
-            if (error.name === 'SequelizeValidationError')    
+            if (error.name === 'SequelizeValidationError') {
                 console.error('Validation errors: ', errors);
+                res.status(400).json({Errors: errors});
+            }    
             else
-                throw error;
-            res.status(400).json({Errors: errors});    
+                res.status(500).json({message: error.message});
+                
         })
+});
+
+// a route that updates an existing course
+router.put('/:id' , async (req,res) => {
+    try {
+        const course = await Course.findByPk(req.params.id);
+        if (course) {
+            await course.update({
+                userId: req.body.userId,
+                title: req.body.title,
+                description: req.body.description,
+	            estimatedTime: req.body.estimatedTime,
+	            materialsNeeded: req.body.materialsNeeded
+            });
+            res.status(204).end();
+        }
+        else 
+            res.status(404).json({message : 'Not found'}); 
+    }
+    catch(error) {
+        const errors = error.errors.map( (err) => err.message);
+        if (error.name === 'SequelizeValidationError') {
+            console.error('Validation errors: ', errors);
+            res.status(400).json({Errors: errors});
+        }
+        else
+            res.status(500).json({message: error.message});
+    }
+
+});
+
+
+// a route that deletes an existing course
+router.delete('/:id' , async (req,res) => {
+    try {
+        const course = await Course.findByPk(req.params.id);
+        if (course) {
+            await course.destroy();
+            res.status(204).end();
+        }
+        else 
+            res.status(404).json({message : 'Not found'}); 
+    }
+    catch(error) {
+            res.status(500).json({message: error.message});
+    }
 });
 
 
