@@ -6,7 +6,7 @@ const morgan = require('morgan');
 const db = require('./db');
 const bodyParser = require('body-parser');
 const users = require('./routes/users');
-// const courses = require('./routes/courses');
+const courses = require('./routes/courses');
 
 /************* NEW ADDED CODE ***********/
 // import User and Course models
@@ -67,6 +67,7 @@ app.use(morgan('dev'));
 
 // Body-parser
 app.use(bodyParser.urlencoded({extended: false}));
+
 // parse application/json
 app.use(bodyParser.json());
 
@@ -74,7 +75,7 @@ app.use(bodyParser.json());
 
 // setup api routes
 app.use('/api/users' , users);
-// app.use('/api/courses' , courses);
+app.use('/api/courses' , courses);
 
 // setup a friendly greeting for the root route
 app.get('/', (req, res) => {

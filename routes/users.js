@@ -2,7 +2,7 @@
 
 const express = require('express');
 
-// an array to keep track of users records
+// import User module
 const User = require('../db/models/user');
 
 // bcrypt module
@@ -90,7 +90,6 @@ router.get('/' , authenticateUser , (req,res) => {
 router.post('/' , (req,res) => {
     const user = req.body;
     user.password = bcryptjs.hashSync(user.password);
-    console.log(user);
 
     // create the new user
     User.create(user)
@@ -101,7 +100,7 @@ router.post('/' , (req,res) => {
                 console.error('Validation errors: ', errors);
             else
                 throw error;
-            res.status(400).json({Errors: errors}).end();    
+            res.status(400).json({Errors: errors});    
         }    
 )});
 
