@@ -13,6 +13,7 @@ const courses = require('./routes/courses');
 const { User } = db.models;
 const { Course } = db.models;
 
+const bcryptjs = require('bcryptjs');
 
 (async () => {
   // sync users table
@@ -21,25 +22,6 @@ const { Course } = db.models;
   try {
     await db.sequelize.authenticate();
     console.log('Connection to the database successful!');
-
-        // Instance of the User class represents a database row
-        const user = await User.create({
-          firstName: 'Snir',
-          lastName: 'Holland',
-          emailAddress: 'snirofakemail@yahoo.com',
-          password: 'fakepass93751'
-        });
-        // console.log(user.toJSON());
-
-        // Instance of the Course class represents a database row
-        const course = await Course.create({
-          userId: user.id,
-          title: 'Linear Algebra',
-          description: 'Abstract mathematics: Complex numbers, Matrices, Vector spaces etc..',
-          estimatedTime: '4 months',
-          materialsNeeded: 'A good mood..'
-        });
-        // console.log(course.toJSON());
   }
   catch (error) {
     if (error.name === 'SequelizeValidationError') {
@@ -49,12 +31,9 @@ const { Course } = db.models;
     else {
       throw error;
     }
-
-
     console.error('Error connecting to the database: ', error);
   }
 })();
-/******************************************************/ 
 
 // variable to enable global error logging
 const enableGlobalErrorLogging = process.env.ENABLE_GLOBAL_ERROR_LOGGING === 'true';
@@ -70,8 +49,6 @@ app.use(bodyParser.urlencoded({extended: false}));
 
 // parse application/json
 app.use(bodyParser.json());
-
-
 
 // setup api routes
 app.use('/api/users' , users);

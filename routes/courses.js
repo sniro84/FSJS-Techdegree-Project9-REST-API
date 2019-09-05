@@ -2,8 +2,11 @@
 
 const express = require('express');
 
-// import User module
+// import Course module
 const Course = require('../db/models/course');
+
+// import user authentication module
+const authenticateUser = require('../auth');
 
 // construct a router instance
 const router = express.Router();
@@ -29,10 +32,10 @@ router.get('/:id' , async (req,res) => {
 });
 
 // a route that creates a new course
-router.post('/', (req,res) => {
+router.post('/' , authenticateUser, (req,res) => {
 
     const course = req.body;
-    // create the new user
+    // create the new course
     Course.create(course)
         .then( () => res.location('/').status(201).end() ) 
         .catch( (error) => {
@@ -48,7 +51,7 @@ router.post('/', (req,res) => {
 });
 
 // a route that updates an existing course
-router.put('/:id' , async (req,res) => {
+router.put('/:id'  ,authenticateUser, async (req,res) => {
     try {
         const course = await Course.findByPk(req.params.id);
         if (course) {
@@ -78,7 +81,7 @@ router.put('/:id' , async (req,res) => {
 
 
 // a route that deletes an existing course
-router.delete('/:id' , async (req,res) => {
+router.delete('/:id' ,authenticateUser,  async (req,res) => {
     try {
         const course = await Course.findByPk(req.params.id);
         if (course) {
@@ -92,8 +95,5 @@ router.delete('/:id' , async (req,res) => {
             res.status(500).json({message: error.message});
     }
 });
-
-
-
 
 module.exports = router;
