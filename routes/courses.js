@@ -29,8 +29,7 @@ router.get('/' , async (req,res,next) => {
         const courses = await Course.findAll({
             include:[{ 
                 model: User
-            }
-        ]
+            }]
         });
         res.status(200).json(courses);
     }
