@@ -24,21 +24,14 @@ const { Course } = db.models;
 
 // connect to database
 (async () => {
-  await db.sequelize.sync({ force: true });
+  await db.sequelize.sync();
 
   try {
     await db.sequelize.authenticate();
     console.log('Connection to the database successful!');
   }
-  catch (error) {
-    if (error.name === 'SequelizeValidationError') {
-      const errors = error.errors.map( (err) => err.message);
-      console.error('Validation errors: ', errors);
-    }
-    else {
-      throw error;
-    }
-    console.error('Error connecting to the database: ', error);
+  catch (err) {
+    console.error('Error connecting to the database: ', err);
   }
 })();
 
@@ -82,8 +75,7 @@ app.use((err, req, res, next) => {
   }
 
   res.status(err.status || 500).json({
-    message: err.message,
-    error: {},
+    message: err.message
   });
 });
 

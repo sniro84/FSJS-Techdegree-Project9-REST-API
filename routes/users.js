@@ -24,33 +24,50 @@ const bcryptjs = require('bcryptjs');
 const router = express.Router();
 
 // a route that returns the currently authenticated user
-router.get('/' , authenticateUser , (req,res) => {
-    const user = req.currentUser;
-    res.json({
-        id: user.id,
-        firstName: user.firstName,
-        lastName: user.lastName,
-        emailAddress: user.emailAddress
-    });
+router.get('/' , authenticateUser , async (req,res,next) => {
+    try {
+        const user = await req.currentUser;
+        res.json({
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            emailAddress: user.emailAddress
+        });
+    }
+    catch(err) {
+        next(err);
+    }  
 });
 
 // a route that creates a new user
-router.post('/' , (req,res) => {
-    const user = req.body;
-    user.password = bcryptjs.hashSync(user.password);
+router.post('/' , async (req,res,next) => {
+    try{
+        const firstName = await req.body.firstName;
+        const lastName = await req.body.lastName;
+        const emailAddress = await req.body.emailAddress;
+        let password = await req.body.password;
 
-    // create the new user
-    User.create(user)
-        .then( () => res.location('/').status(201).end() ) 
-        .catch( (error) => {
-            const errors = error.errors.map( (err) => err.message);
-            if (error.name === 'SequelizeValidationError') {
-                res.status(400).json({Errors: errors});
-                console.error('Validation errors: ', errors);
-            }    
-            else
-                res.status(500).json({message: error.message});        
+        // hash password
+        if (password)
+            password = bcryptjs.hashSync(password);
+
+        // create the new user
+        await User.create({
+            firstName,
+            lastName,
+            emailAddress,
+            password
+        });
+        res.location('/').status(201).end();
+    }
+    catch(err) {
+        const errors = err.errors.map( (error) => error.message);
+        if (err.name === 'SequelizeValidationError') {
+            err.status = 400;
+            console.error('Validation errors: ', errors);
         }    
-)});
+        next(err);              
+    }    
+});
 
 module.exports = router;

@@ -14,6 +14,9 @@ const express = require('express');
 // import Course module
 const Course = require('../db/models/course');
 
+// import User module
+const User = require('../db/models/user');
+
 // import user authentication module
 const authenticateUser = require('../auth');
 
@@ -21,13 +24,22 @@ const authenticateUser = require('../auth');
 const router = express.Router();
 
 // a route that returns a list of courses
-router.get('/' , async (req,res) => {
-    const courses = await Course.findAll();
-    res.status(200).json(courses);     
+router.get('/' , async (req,res,next) => {
+    try {
+        const courses = await Course.findAll({
+            include:[{ 
+                model: User
+            }]
+        });
+        res.status(200).json(courses);
+    }
+    catch (err) {
+        next(err);
+    }      
 });
 
 // a route that returns a specific course
-router.get('/:id' , async (req,res) => {
+router.get('/:id' , async (req,res,next) => {
     try {
         const course = await Course.findByPk(req.params.id);
         if (course)
@@ -35,31 +47,44 @@ router.get('/:id' , async (req,res) => {
         else
             res.status(404).json({message : 'Not found'});     
     }
-    catch(error) {
-        res.status(500).json({message: error.message});
+    catch(err) {
+        next(err);
     }       
 });
 
 // a route that creates a new course
-router.post('/' , authenticateUser, (req,res) => {
+router.post('/' , authenticateUser, async (req,res,next) => {
 
-    const course = req.body;
-    // create the new course
-    Course.create(course)
-        .then( () => res.location('/').status(201).end() ) 
-        .catch( (error) => {
-            const errors = error.errors.map( (err) => err.message);
-            if (error.name === 'SequelizeValidationError') {
-                console.error('Validation errors: ', errors);
-                res.status(400).json({Errors: errors});
-            }    
-            else
-                res.status(500).json({message: error.message});  
-        })
+    try{
+        const userId = await req.body.userId;
+        const title = await req.body.title;
+        const description = await req.body.description;
+        const estimatedTime = await req.body.estimatedTime;
+        const materialsNeeded = await req.body.materialsNeeded;
+
+        // create the new course
+        await Course.create({
+            userId,
+            title,
+            description,
+            estimatedTime,
+            materialsNeeded
+        });
+        res.location('/').status(201).end();
+    }
+    catch(err) {
+
+        const errors = err.errors.map( (error) => error.message);
+        if (err.name === 'SequelizeValidationError') {
+            err.status = 400;
+            console.error('Validation errors: ', errors);
+        }    
+        next(err);              
+    }
 });
 
 // a route that updates an existing course
-router.put('/:id'  ,authenticateUser, async (req,res) => {
+router.put('/:id'  ,authenticateUser, async (req,res,next) => {
     try {
         const course = await Course.findByPk(req.params.id);
         if (course) {
@@ -75,21 +100,20 @@ router.put('/:id'  ,authenticateUser, async (req,res) => {
         else 
             res.status(404).json({message : 'Not found'}); 
     }
-    catch(error) {
-        const errors = error.errors.map( (err) => err.message);
-        if (error.name === 'SequelizeValidationError') {
+    catch(err) {
+        const errors = err.errors.map( (error) => error.message);
+        if (err.name === 'SequelizeValidationError') {
+            err.status = 400;
             console.error('Validation errors: ', errors);
-            res.status(400).json({Errors: errors});
-        }
-        else
-            res.status(500).json({message: error.message});
+        }    
+        next(err); 
     }
 
 });
 
 
 // a route that deletes an existing course
-router.delete('/:id' ,authenticateUser,  async (req,res) => {
+router.delete('/:id' ,authenticateUser,  async (req,res,next) => {
     try {
         const course = await Course.findByPk(req.params.id);
         if (course) {
@@ -99,8 +123,8 @@ router.delete('/:id' ,authenticateUser,  async (req,res) => {
         else 
             res.status(404).json({message : 'Not found'}); 
     }
-    catch(error) {
-            res.status(500).json({message: error.message});
+    catch(err) {
+            next(err);
     }
 });
 
