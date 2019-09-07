@@ -18,10 +18,6 @@ const users = require('./routes/users');
 const courses = require('./routes/courses');
 const bcryptjs = require('bcryptjs');
 
-// import User and Course models
-const { User } = db.models;
-const { Course } = db.models;
-
 // connect to database
 (async () => {
   await db.sequelize.sync();
