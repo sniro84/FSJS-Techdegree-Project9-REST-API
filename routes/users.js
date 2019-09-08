@@ -48,8 +48,8 @@ router.post('/' , async (req,res,next) => {
         let password = await req.body.password;
 
         // validation of email address
-        if  (!/^[^@]+@[^@.]+\.[a-z]+$/i.test(emailAddress)) {
-            const err = new Error('Invalid email address');
+        if  ((!((/^[^@]+@[^@.]+\.[a-z]+$/i).test(emailAddress)))) {
+            const err = new Error('Invalid email address (syntax error)');
             err.status= 400;
             throw(err);
         }
