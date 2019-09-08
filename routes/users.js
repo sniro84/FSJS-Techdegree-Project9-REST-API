@@ -48,7 +48,11 @@ router.post('/' , async (req,res,next) => {
         let password = await req.body.password;
 
         // validation of email address
-        
+        if  (!/^[^@]+@[^@.]+\.[a-z]+$/i.test(emailAddress)) {
+            const err = new Error('Invalid email address');
+            err.status= 400;
+            throw(err);
+        }
 
         // check for existing user email address
         const emailAlreadyExists = await User.findOne({ where: {emailAddress: `${emailAddress}` } });
