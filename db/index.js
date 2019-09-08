@@ -31,5 +31,14 @@ db.models.User = User(sequelize);
 const Course = require('./models/course.js');
 db.models.Course = Course(sequelize);
 
+// create associations
+// Object.keys(db.models).forEach((modelName) => {
+//     console.info(`Configuring the associations for the ${modelName} model...`);
+//     db.models[modelName].associate(db.models); 
+// });
+
+db.models.Course.associate(db.models);
+db.models.User.associate(db.models);
+
 // export the db object
 module.exports = db;

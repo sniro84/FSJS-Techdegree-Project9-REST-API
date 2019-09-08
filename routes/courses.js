@@ -27,9 +27,12 @@ const router = express.Router();
 router.get('/' , async (req,res,next) => {
     try {
         const courses = await Course.findAll({
-            include:[{ 
-                model: User
-            }]
+            include: [
+                {
+                    model: User,
+                    // as: 'user'
+                }
+            ]
         });
         res.status(200).json(courses);
     }

@@ -47,7 +47,7 @@ router.post('/' , async (req,res,next) => {
         const emailAddress = await req.body.emailAddress;
         let password = await req.body.password;
 
-        // hash password
+        // hash password if supplied by the user
         if (password)
             password = bcryptjs.hashSync(password);
 
