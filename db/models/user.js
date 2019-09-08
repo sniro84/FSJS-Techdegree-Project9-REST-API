@@ -22,10 +22,10 @@ module.exports = (sequelize) => {
             allowNull: false,
             validate: {
                 notEmpty: {
-                    msg: 'Please provide a value for "firstName"'
+                    msg: `Please provide a value for 'firstName'`
                 },
                 notNull:{
-                    msg: 'Please provide a value for "firstName"'
+                    msg: `Please provide a value for 'firstName'`
                 } 
             }  
         }, 
@@ -34,10 +34,10 @@ module.exports = (sequelize) => {
             allowNull: false,
             validate: {
                 notEmpty: {
-                    msg: 'Please provide a value for "lastName"'
+                    msg: `Please provide a value for 'lastName'`
                 },
                 notNull:{
-                    msg: 'Please provide a value for "lastName"'
+                    msg: `Please provide a value for 'lastName'`
                 }
             }
         },
@@ -46,10 +46,10 @@ module.exports = (sequelize) => {
             allowNull: false,
             validate: {
                 notEmpty: {
-                    msg: 'Please provide a value for "emailAddress"'
+                    msg: `Please provide a value for 'emailAddress'`
                 },
                 notNull:{
-                    msg: 'Please provide a value for "emailAddress"'
+                    msg: `Please provide a value for 'emailAddress'`
                 }
             }
         },
@@ -58,10 +58,10 @@ module.exports = (sequelize) => {
             allowNull: false,
             validate: {
                 notEmpty: {
-                    msg: 'Please provide a value for "password"'
+                    msg: `Please provide a value for 'password'`
                 },
                 notNull:{
-                    msg: 'Please provide a value for "password"'
+                    msg: `Please provide a value for 'password'`
                 }
             }
         }
@@ -69,7 +69,6 @@ module.exports = (sequelize) => {
 
     User.associate = (models) => {
         User.hasMany(models.Course, {
-            as: 'user',
             foreignKey: {
                 fieldName: 'userId',
                 allowNull: false

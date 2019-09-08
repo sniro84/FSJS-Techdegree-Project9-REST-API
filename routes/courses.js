@@ -27,12 +27,17 @@ const router = express.Router();
 router.get('/' , async (req,res,next) => {
     try {
         const courses = await Course.findAll({
-            include: [
-                {
+            attributes: {
+                include: ['id','title','description','estimatedTime','materialsNeeded'],
+                exclude: ['userId']
+            },
+            include: [{
                     model: User,
-                    // as: 'user'
-                }
-            ]
+                    attributes: {
+                        include:['id','firstName','lastName','emailAddress'],
+                        exclude:['password']
+                    }    
+            }] 
         });
         res.status(200).json(courses);
     }
@@ -44,11 +49,23 @@ router.get('/' , async (req,res,next) => {
 // a route that returns a specific course
 router.get('/:id' , async (req,res,next) => {
     try {
-        const course = await Course.findByPk(req.params.id);
+        const course = await Course.findByPk(req.params.id , {
+            attributes: {
+                include: ['id','title','description','estimatedTime','materialsNeeded'],
+                exclude: ['userId']
+            },
+            include: [{
+                    model: User,
+                    attributes: {
+                        include:['id','firstName','lastName','emailAddress'],
+                        exclude:['password']
+                    }    
+            }] 
+        });
         if (course)
             res.status(200).json(course);
         else
-            res.status(404).json({message : 'Not found'});     
+            res.status(404).json({message : `Course not found`});     
     }
     catch(err) {
         next(err);
@@ -76,9 +93,8 @@ router.post('/' , authenticateUser, async (req,res,next) => {
         res.location('/').status(201).end();
     }
     catch(err) {
-
-        const errors = err.errors.map( (error) => error.message);
         if (err.name === 'SequelizeValidationError') {
+            const errors = err.errors.map( (error) => error.message);
             err.status = 400;
             console.error('Validation errors: ', errors);
         }    
@@ -90,7 +106,29 @@ router.post('/' , authenticateUser, async (req,res,next) => {
 router.put('/:id'  ,authenticateUser, async (req,res,next) => {
     try {
         const course = await Course.findByPk(req.params.id);
+        const user = await User.findByPk(req.currentUser.id);
+        const targetUserExists = await User.findByPk(req.body.userId);
+        
         if (course) {
+
+            const validationErrors = [];
+
+            // current user doesn't own the course
+            if(course.userId !== user.id)
+                res.status(403).json({message : `Current user doesn't own the course`});
+
+            // target user (in the request body) doesn't exist
+            if (!targetUserExists)
+                res.status(404).json({message : `Target user doesn't exist`});
+            
+            // validation for course title and description (model validations works only for the POST requests)    
+            if (!req.body.title || req.body.title === "") 
+                validationErrors.push(`Please provide a value for 'title'`);
+            if (!req.body.description || req.body.description === "") 
+                validationErrors.push(`Please provide a value for 'description'`);
+            if (validationErrors.length > 0) 
+                res.status(400).json({validationErrors});
+
             await course.update({
                 userId: req.body.userId,
                 title: req.body.title,
@@ -101,11 +139,11 @@ router.put('/:id'  ,authenticateUser, async (req,res,next) => {
             res.status(204).end();
         }
         else 
-            res.status(404).json({message : 'Not found'}); 
+            res.status(404).json({message : `Course not found`}); 
     }
     catch(err) {
-        const errors = err.errors.map( (error) => error.message);
         if (err.name === 'SequelizeValidationError') {
+            const errors = err.errors.map( (error) => error.message);
             err.status = 400;
             console.error('Validation errors: ', errors);
         }    
@@ -114,17 +152,23 @@ router.put('/:id'  ,authenticateUser, async (req,res,next) => {
 
 });
 
-
 // a route that deletes an existing course
 router.delete('/:id' ,authenticateUser,  async (req,res,next) => {
     try {
         const course = await Course.findByPk(req.params.id);
+        const user = await User.findByPk(req.currentUser.id);
+
         if (course) {
+
+            // current user doesn't own the course
+            if(course.userId !== user.id)
+                res.status(403).json({message : `Current user doesn't own the course`});
+
             await course.destroy();
             res.status(204).end();
         }
         else 
-            res.status(404).json({message : 'Not found'}); 
+            res.status(404).json({message : `Course not found`}); 
     }
     catch(err) {
             next(err);

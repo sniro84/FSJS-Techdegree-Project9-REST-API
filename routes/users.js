@@ -47,6 +47,17 @@ router.post('/' , async (req,res,next) => {
         const emailAddress = await req.body.emailAddress;
         let password = await req.body.password;
 
+        // validation of email address
+        
+
+        // check for existing user email address
+        const emailAlreadyExists = await User.findOne({ where: {emailAddress: `${emailAddress}` } });
+        if (emailAlreadyExists) {
+            const err = new Error('Email already exists, try a different one.');
+            err.status= 400;
+            throw(err);
+        }
+
         // hash password if supplied by the user
         if (password)
             password = bcryptjs.hashSync(password);
@@ -61,8 +72,8 @@ router.post('/' , async (req,res,next) => {
         res.location('/').status(201).end();
     }
     catch(err) {
-        const errors = err.errors.map( (error) => error.message);
         if (err.name === 'SequelizeValidationError') {
+            const errors = err.errors.map( (error) => error.message);
             err.status = 400;
             console.error('Validation errors: ', errors);
         }    

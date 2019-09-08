@@ -22,10 +22,10 @@ module.exports = (sequelize) => {
             allowNull: false,
             validate: {
                 notEmpty: {
-                    msg: 'Please provide a value for "userId"'
+                    msg: `Please provide a value for 'userId'`
                 },
                 notNull:{
-                    msg: 'Please provide a value for "userId"'
+                    msg: `Please provide a value for 'userId'`
                 }
             }
         },
@@ -34,10 +34,10 @@ module.exports = (sequelize) => {
             allowNull: false,
             validate: {
                 notEmpty: {
-                    msg: 'Please provide a value for "title"'
+                    msg: `Please provide a value for 'title'`
                 },
                 notNull:{
-                    msg: 'Please provide a value for "title"'
+                    msg: `Please provide a value for 'title'`
                 }
             }
         },
@@ -46,10 +46,10 @@ module.exports = (sequelize) => {
             allowNull: false,
             validate: {
                 notEmpty: {
-                    msg: 'Please provide a value for "description"'
+                    msg: `Please provide a value for 'description'`
                 },
                 notNull:{
-                    msg: 'Please provide a value for "description"'
+                    msg: `Please provide a value for 'description'`
                 }
             }
         },
@@ -67,7 +67,6 @@ module.exports = (sequelize) => {
     Course.associate = (models) => {
         Course.belongsTo(models.User, {
             foreignKey: {
-                as: 'user',
                 fieldName: 'userId',
                 allowNull: false
             }
