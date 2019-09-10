@@ -110,33 +110,32 @@ router.put('/:id'  ,authenticateUser, async (req,res,next) => {
         const targetUserExists = await User.findByPk(req.body.userId);
         
         if (course) {
-
             const validationErrors = [];
 
-            // current user doesn't own the course
-            if(course.userId !== user.id)
+            if(course.userId !== user.id)  // current user doesn't own the course
                 res.status(403).json({message : `Current user doesn't own the course`});
+            else {
+                // validation for course title and description (model validations works only for the POST requests)    
+                if (!req.body.title || req.body.title === "") 
+                    validationErrors.push(`Please provide a value for 'title'`);
+                if (!req.body.description || req.body.description === "") 
+                    validationErrors.push(`Please provide a value for 'description'`);
+                if (validationErrors.length > 0) 
+                    res.status(400).json({validationErrors});
 
-            // validation for course title and description (model validations works only for the POST requests)    
-            if (!req.body.title || req.body.title === "") 
-                validationErrors.push(`Please provide a value for 'title'`);
-            if (!req.body.description || req.body.description === "") 
-                validationErrors.push(`Please provide a value for 'description'`);
-            if (validationErrors.length > 0) 
-                res.status(400).json({validationErrors});
+                // target user (in the request body) doesn't exist
+                if (!targetUserExists)
+                    res.status(400).json({message : `Target user doesn't exist`});    
 
-            // target user (in the request body) doesn't exist
-            if (!targetUserExists)
-                res.status(400).json({message : `Target user doesn't exist`});    
-
-            await course.update({
-                userId: req.body.userId,
-                title: req.body.title,
-                description: req.body.description,
-	            estimatedTime: req.body.estimatedTime,
-	            materialsNeeded: req.body.materialsNeeded
-            });
-            res.status(204).end();
+                await course.update({
+                    userId: req.body.userId,
+                    title: req.body.title,
+                    description: req.body.description,
+                    estimatedTime: req.body.estimatedTime,
+                    materialsNeeded: req.body.materialsNeeded
+                });
+                res.status(204).end();
+            }      
         }
         else 
             next();
@@ -144,7 +143,6 @@ router.put('/:id'  ,authenticateUser, async (req,res,next) => {
     catch(err) {    
         next(err); 
     }
-
 });
 
 // a route that deletes an existing course
@@ -154,13 +152,12 @@ router.delete('/:id' ,authenticateUser,  async (req,res,next) => {
         const user = await User.findByPk(req.currentUser.id);
 
         if (course) {
-
-            // current user doesn't own the course
-            if(course.userId !== user.id)
+            if(course.userId !== user.id)  // current user doesn't own the course
                 res.status(403).json({message : `Current user doesn't own the course`});
-
-            await course.destroy();
-            res.status(204).end();
+            else {
+                await course.destroy();
+                res.status(204).end(); 
+            }        
         }
         else 
             next();
