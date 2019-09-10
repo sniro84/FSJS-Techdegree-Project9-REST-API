@@ -29,13 +29,13 @@ router.get('/' , async (req,res,next) => {
         const courses = await Course.findAll({
             attributes: {
                 include: ['id','title','description','estimatedTime','materialsNeeded'],
-                exclude: ['userId']
+                exclude: ['userId','createdAt','updatedAt']
             },
             include: [{
                     model: User,
                     attributes: {
                         include:['id','firstName','lastName','emailAddress'],
-                        exclude:['password']
+                        exclude:['password','createdAt','updatedAt']
                     }    
             }] 
         });
@@ -52,20 +52,20 @@ router.get('/:id' , async (req,res,next) => {
         const course = await Course.findByPk(req.params.id , {
             attributes: {
                 include: ['id','title','description','estimatedTime','materialsNeeded'],
-                exclude: ['userId']
+                exclude: ['userId','createdAt','updatedAt']
             },
             include: [{
                     model: User,
                     attributes: {
                         include:['id','firstName','lastName','emailAddress'],
-                        exclude:['password']
+                        exclude:['password','createdAt','updatedAt']
                     }    
             }] 
         });
         if (course)
             res.status(200).json(course);
         else
-            res.status(404).json({message : `Course not found`});     
+            next();     
     }
     catch(err) {
         next(err);
@@ -117,10 +117,6 @@ router.put('/:id'  ,authenticateUser, async (req,res,next) => {
             if(course.userId !== user.id)
                 res.status(403).json({message : `Current user doesn't own the course`});
 
-            // target user (in the request body) doesn't exist
-            if (!targetUserExists)
-                res.status(404).json({message : `Target user doesn't exist`});
-            
             // validation for course title and description (model validations works only for the POST requests)    
             if (!req.body.title || req.body.title === "") 
                 validationErrors.push(`Please provide a value for 'title'`);
@@ -128,6 +124,10 @@ router.put('/:id'  ,authenticateUser, async (req,res,next) => {
                 validationErrors.push(`Please provide a value for 'description'`);
             if (validationErrors.length > 0) 
                 res.status(400).json({validationErrors});
+
+            // target user (in the request body) doesn't exist
+            if (!targetUserExists)
+                res.status(400).json({message : `Target user doesn't exist`});    
 
             await course.update({
                 userId: req.body.userId,
@@ -139,14 +139,9 @@ router.put('/:id'  ,authenticateUser, async (req,res,next) => {
             res.status(204).end();
         }
         else 
-            res.status(404).json({message : `Course not found`}); 
+            next();
     }
-    catch(err) {
-        if (err.name === 'SequelizeValidationError') {
-            const errors = err.errors.map( (error) => error.message);
-            err.status = 400;
-            console.error('Validation errors: ', errors);
-        }    
+    catch(err) {    
         next(err); 
     }
 
@@ -168,7 +163,7 @@ router.delete('/:id' ,authenticateUser,  async (req,res,next) => {
             res.status(204).end();
         }
         else 
-            res.status(404).json({message : `Course not found`}); 
+            next();
     }
     catch(err) {
             next(err);

@@ -48,12 +48,12 @@ router.post('/' , async (req,res,next) => {
         let password = await req.body.password;
 
         // validation of email address
-        if  ((!((/^[^@]+@[^@.]+\.[a-z]+$/i).test(emailAddress)))) {
+        if  (emailAddress && (!((/^[^@]+@[^@.]+\.[a-z]+$/i).test(emailAddress)))) {
             const err = new Error('Invalid email address (syntax error)');
             err.status= 400;
             throw(err);
         }
-
+      
         // check for existing user email address
         const emailAlreadyExists = await User.findOne({ where: {emailAddress: `${emailAddress}` } });
         if (emailAlreadyExists) {
@@ -61,7 +61,7 @@ router.post('/' , async (req,res,next) => {
             err.status= 400;
             throw(err);
         }
-
+        
         // hash password if supplied by the user
         if (password)
             password = bcryptjs.hashSync(password);

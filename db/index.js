@@ -12,10 +12,7 @@ const Sequelize = require('sequelize');
 // create a Sequelize instance
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: 'fsjstd-restapi.db',
-  define: {
-    timestamps: false 
-  }
+  storage: 'fsjstd-restapi.db'
 });
 
 // create a db object which contains sequelize instance and models (allow access from the app)
@@ -32,11 +29,6 @@ const Course = require('./models/course.js');
 db.models.Course = Course(sequelize);
 
 // create associations
-// Object.keys(db.models).forEach((modelName) => {
-//     console.info(`Configuring the associations for the ${modelName} model...`);
-//     db.models[modelName].associate(db.models); 
-// });
-
 db.models.Course.associate(db.models);
 db.models.User.associate(db.models);
 
